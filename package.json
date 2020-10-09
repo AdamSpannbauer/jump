@@ -1,0 +1,27 @@
+{
+  "name": "jump",
+  "version": "0.0.1",
+  "description": "jump",
+  "main": "sketch.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AdamSpannbauer/jump.git"
+  },
+  "keywords": [
+    "jump"
+  ],
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/AdamSpannbauer/jump/issues"
+  },
+  "homepage": "https://github.com/AdamSpannbauer/jump#readme",
+  "devDependencies": {
+    "eslint": "^7.11.0",
+    "eslint-config-airbnb-base": "^14.2.0",
+    "eslint-plugin-import": "^2.22.1"
+  }
+}
