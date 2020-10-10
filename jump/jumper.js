@@ -1,9 +1,9 @@
 class Jumper {
-  constructor(p, w) {
+  constructor({ pos = createVector(width / 2, height / 2), w = 50 }) {
     this.w = w;
     this.angle = 0;
 
-    this.p = p;
+    this.pos = pos;
     this.v = createVector();
     this.a = createVector();
     this.f = createVector();
@@ -11,49 +11,33 @@ class Jumper {
     this.mass = 20;
 
     this.gravity = createVector(0, 3);
-    this.max_speed = 5;
-    this.max_accel = 5;
+    this.maxSpeed = 5;
+    this.maxAccel = 5;
 
-    this.jump_count = 0;
-    this.up_held = false;
+    this.jumpCount = 0;
+    this.doubleJumpLimit = 1;
+    this.upKeyIsHeld = false;
+
+    this.jumpForce = createVector(0, -100);
+    this.doubleJumpForce = createVector(0, -200);
+
+    this.groundMoveForce = createVector(50, 0);
+    this.airMoveForce = createVector(3, 0);
+
+    this.friction = 0.5;
+    this.airResistance = 0.99;
+    this.bounciness = 0.7;
   }
 
   get isGrounded() {
-    const flag = this.p.y + this.w / 2 + 3 >= height;
+    const flag = this.pos.y + this.w / 2 + 3 >= height;
+
+    // Reset jump counter if
     if (flag) {
-      this.jump_count = 0;
+      this.jumpCount = 0;
     }
 
     return flag;
-  }
-
-  userInput() {
-    if (keyIsDown(UP_ARROW) && this.jump_count < 2 && !this.up_held) {
-      if (this.jump_count === 0) {
-        this.f.y -= 100;
-      } else {
-        this.f.y -= 200;
-      }
-
-      this.up_held = true;
-      this.jump_count += 1;
-    } else if (keyIsDown(LEFT_ARROW)) {
-      if (this.isGrounded) {
-        this.f.x -= 50;
-      } else {
-        this.f.x -= 3;
-      }
-    } else if (keyIsDown(RIGHT_ARROW)) {
-      if (this.isGrounded) {
-        this.f.x += 50;
-      } else {
-        this.f.x += 3;
-      }
-    }
-
-    if (!keyIsDown(UP_ARROW)) {
-      this.up_held = false;
-    }
   }
 
   applyForce(f) {
@@ -68,21 +52,22 @@ class Jumper {
 
     this.applyForce(this.f);
     this.applyForce(this.gravity);
-    this.a.limit(this.max_accel);
+    this.a.limit(this.maxAccel);
 
     this.v.add(this.a);
-    this.v.mult(0.99);
-    this.v.limit(this.max_speed);
+    this.v.mult(this.airResistance);
+    this.v.limit(this.maxSpeed);
 
     if (this.isGrounded) {
+      // stop moving if too slow
       if (this.v.mag() < 1) {
         this.v.mult(0);
       } else {
-        this.v.x *= 0.5;
+        this.v.x *= this.friction;
       }
     }
 
-    this.p.add(this.v);
+    this.pos.add(this.v);
     this.bounce();
 
     this.f.mult(0);
@@ -91,37 +76,76 @@ class Jumper {
 
   draw() {
     push();
-    translate(this.p.x, this.p.y);
+    translate(this.pos.x, this.pos.y);
     rotate(this.angle);
     rect(0, 0, this.w, this.w);
     pop();
   }
 
   bounce() {
-    const too_left = this.p.x - this.w / 2 <= 0;
-    const too_right = this.p.x + this.w / 2 >= width;
+    const tooLeft = this.pos.x - this.w / 2 <= 0;
+    const tooRight = this.pos.x + this.w / 2 >= width;
 
-    const too_high = this.p.y - this.w / 2 <= 0;
-    const too_low = this.p.y + this.w / 2 >= height;
+    const tooHigh = this.pos.y - this.w / 2 <= 0;
+    const tooLow = this.pos.y + this.w / 2 >= height;
 
-    if (too_left || too_right) {
-      if (too_right) {
-        this.p.x = width - this.w / 2 - 1;
+    if (tooLeft || tooRight) {
+      if (tooRight) {
+        this.pos.x = width - this.w / 2 - 1;
       } else {
-        this.p.x = this.w / 2 + 1;
+        this.pos.x = this.w / 2 + 1;
       }
 
-      this.v.x *= -0.7;
+      this.v.x *= -this.bounciness;
     }
 
-    if (too_low || too_high) {
-      if (too_low) {
-        this.p.y = height - this.w / 2 - 1;
+    if (tooLow || tooHigh) {
+      if (tooLow) {
+        this.pos.y = height - this.w / 2 - 1;
       } else {
-        this.p.y = this.w / 2 + 1;
+        this.pos.y = this.w / 2 + 1;
       }
 
-      this.v.y *= -0.7;
+      this.v.y *= -this.bounciness;
+    }
+  }
+
+  userInput() {
+    // up or w
+    const upPressed = keyIsDown(UP_ARROW) || keyIsDown(87);
+    const hasRemainingJumps = this.jumpCount < this.doubleJumpLimit + 1;
+
+    if (upPressed && !this.upKeyIsHeld && hasRemainingJumps) {
+      if (this.jumpCount === 0) {
+        this.f.add(this.jumpForce);
+      } else {
+        this.f.add(this.doubleJumpForce);
+      }
+
+      this.upKeyIsHeld = true;
+      this.jumpCount += 1;
+    } else if (!upPressed) {
+      this.upKeyIsHeld = false;
+    }
+
+    // left or a
+    const leftPressed = keyIsDown(LEFT_ARROW) || keyIsDown(65);
+    if (leftPressed) {
+      if (this.isGrounded) {
+        this.f.sub(this.groundMoveForce);
+      } else {
+        this.f.sub(this.airMoveForce);
+      }
+    }
+
+    // right or d
+    const rightPressed = keyIsDown(RIGHT_ARROW) || keyIsDown(68);
+    if (rightPressed) {
+      if (this.isGrounded) {
+        this.f.add(this.groundMoveForce);
+      } else {
+        this.f.add(this.airMoveForce);
+      }
     }
   }
 }
