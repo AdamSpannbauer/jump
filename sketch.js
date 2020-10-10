@@ -4,12 +4,16 @@ const canvasW = 512;
 const canvasH = 512;
 
 let jumper;
+const jumper_width = 50;
 
 function setup() {
   createCanvas(canvasW, canvasH);
   rectMode(CENTER);
 
-  jumper = new Jumper(createVector(width / 2, height - 50), 50);
+  jumper = new Jumper({
+    p: createVector(width / 2, height - jumper_width),
+    w: jumper_width,
+  });
 }
 
 function draw() {
