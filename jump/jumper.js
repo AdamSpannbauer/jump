@@ -1,7 +1,12 @@
 class Jumper {
-  constructor({ pos = createVector(width / 2, height / 2), w = 50 }) {
+  constructor({
+    pos = createVector(width / 2, height / 2), w = 50, standIm = null, jumpSquatIm = null,
+  }) {
     this.w = w;
-    this.angle = 0;
+    this.h = 2 * w;
+
+    this.standIm = standIm;
+    this.jumpSquatIm = jumpSquatIm;
 
     this.pos = pos;
     this.v = createVector();
@@ -9,10 +14,11 @@ class Jumper {
     this.f = createVector();
 
     this.mass = 20;
+    this.angle = 0;
 
     this.gravity = createVector(0, 3);
-    this.maxSpeed = 5;
-    this.maxAccel = 5;
+    this.maxSpeed = 10;
+    this.maxAccel = 10;
 
     this.jumpCount = 0;
     this.doubleJumpLimit = 1;
@@ -30,7 +36,7 @@ class Jumper {
   }
 
   get isGrounded() {
-    const flag = this.pos.y + this.w / 2 + 3 >= height;
+    const flag = this.pos.y + this.h / 2 + 3 >= height;
 
     // Reset jump counter if
     if (flag) {
@@ -74,11 +80,29 @@ class Jumper {
     this.a.mult(0);
   }
 
+  draw_box() {
+    push();
+    translate(this.pos.x, this.pos.y);
+    rotate(this.angle);
+    rect(0, 0, this.w, this.h);
+    pop();
+  }
+
   draw() {
     push();
     translate(this.pos.x, this.pos.y);
     rotate(this.angle);
-    rect(0, 0, this.w, this.w);
+
+    // Change dir based on x vel
+    scale(-1 * this.v.x / abs(this.v.x), 1.0);
+
+    if (this.upKeyIsHeld) {
+      const h_adj = this.h * 0.88;
+      image(this.jumpSquatIm, 0, this.h - h_adj, this.w, h_adj);
+    } else {
+      image(this.standIm, 0, 0, this.w, this.h);
+    }
+
     pop();
   }
 
@@ -86,8 +110,8 @@ class Jumper {
     const tooLeft = this.pos.x - this.w / 2 <= 0;
     const tooRight = this.pos.x + this.w / 2 >= width;
 
-    const tooHigh = this.pos.y - this.w / 2 <= 0;
-    const tooLow = this.pos.y + this.w / 2 >= height;
+    const tooHigh = this.pos.y - this.h / 2 <= 0;
+    const tooLow = this.pos.y + this.h / 2 >= height;
 
     if (tooLeft || tooRight) {
       if (tooRight) {
@@ -101,12 +125,13 @@ class Jumper {
 
     if (tooLow || tooHigh) {
       if (tooLow) {
-        this.pos.y = height - this.w / 2 - 1;
+        this.pos.y = height - this.h / 2 - 1;
       } else {
-        this.pos.y = this.w / 2 + 1;
+        this.pos.y = this.h / 2 + 1;
       }
 
       this.v.y *= -this.bounciness;
+      this.v.y *= 0;
     }
   }
 
