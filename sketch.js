@@ -37,6 +37,9 @@ function setup() {
 function draw() {
   background(100);
 
+  textSize(30);
+  text('JUMP', 100, height / 2);
+
   jumper.update();
   jumper.draw();
 }
