@@ -34,12 +34,32 @@ function setup() {
   });
 }
 
+function relativeX(x, center) {
+  return width / 2 + (x - center);
+}
+
+function relativeY(y, zero) {
+  return height - (zero - y);
+}
+
 function draw() {
   background(100);
 
   textSize(30);
-  text('JUMP', 100, height / 2);
+  text(
+    'JUMP',
+    relativeX(width / 2, jumper.pos.x),
+    relativeY(height / 2, jumper.pos.y + jumper.h / 2),
+  );
+  fill(0);
+  rect(
+    width / 2,
+    relativeY(height, jumper.pos.y + jumper.h / 2),
+    width,
+    15,
+  );
 
+  translate(width / 2, 0);
   jumper.update();
   jumper.draw();
 }

@@ -14,7 +14,6 @@ class Jumper {
     this.f = createVector();
 
     this.mass = 20;
-    this.angle = 0;
 
     this.gravity = createVector(0, 3);
     this.maxSpeed = 10;
@@ -25,7 +24,7 @@ class Jumper {
     this.upKeyIsHeld = false;
 
     this.jumpForce = createVector(0, -100);
-    this.doubleJumpForce = createVector(0, -200);
+    this.doubleJumpForce = createVector(0, -130);
 
     this.groundMoveForce = createVector(50, 0);
     this.airMoveForce = createVector(3, 0);
@@ -36,9 +35,8 @@ class Jumper {
   }
 
   get isGrounded() {
-    const flag = this.pos.y + this.h / 2 + 3 >= height;
+    const flag = this.pos.y + this.h / 2 + 3 >= height && this.v.y >= 0;
 
-    // Reset jump counter if
     if (flag) {
       this.jumpCount = 0;
     }
@@ -83,15 +81,13 @@ class Jumper {
   draw_box() {
     push();
     translate(this.pos.x, this.pos.y);
-    rotate(this.angle);
     rect(0, 0, this.w, this.h);
     pop();
   }
 
   draw() {
     push();
-    translate(this.pos.x, this.pos.y);
-    rotate(this.angle);
+    translate(0, this.pos.y);
 
     // Change dir based on x vel
     scale(-1 * this.v.x / abs(this.v.x), 1.0);
@@ -113,15 +109,15 @@ class Jumper {
     const tooHigh = this.pos.y - this.h / 2 <= 0;
     const tooLow = this.pos.y + this.h / 2 >= height;
 
-    if (tooLeft || tooRight) {
-      if (tooRight) {
-        this.pos.x = width - this.w / 2 - 1;
-      } else {
-        this.pos.x = this.w / 2 + 1;
-      }
+    // if (tooLeft || tooRight) {
+    //   if (tooRight) {
+    //     this.pos.x = width - this.w / 2 - 1;
+    //   } else {
+    //     this.pos.x = this.w / 2 + 1;
+    //   }
 
-      this.v.x *= -this.bounciness;
-    }
+    //   this.v.x *= -this.bounciness;
+    // }
 
     if (tooLow || tooHigh) {
       if (tooLow) {
