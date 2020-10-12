@@ -109,15 +109,14 @@ class Jumper {
     const tooHigh = this.pos.y - this.h / 2 <= 0;
     const tooLow = this.pos.y + this.h / 2 >= height;
 
-    // if (tooLeft || tooRight) {
-    //   if (tooRight) {
-    //     this.pos.x = width - this.w / 2 - 1;
-    //   } else {
-    //     this.pos.x = this.w / 2 + 1;
-    //   }
-
-    //   this.v.x *= -this.bounciness;
-    // }
+    if (tooLeft || tooRight) {
+      if (tooRight) {
+        // this.pos.x = width - this.w / 2 - 1;
+      } else {
+        this.pos.x = this.w / 2 + 1;
+        this.v.x *= -this.bounciness;
+      }
+    }
 
     if (tooLow || tooHigh) {
       if (tooLow) {
