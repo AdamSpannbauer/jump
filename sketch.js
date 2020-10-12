@@ -28,6 +28,9 @@ const tree2ImPath = './assets/imgs/tree_2.png';
 let tree1Image;
 let tree2Image;
 
+const backgroundMusicPath = './assets/sounds/music.wav';
+let backgroundMusic;
+
 const leafWalkSoundPath = './assets/sounds/leaf_walk.wav';
 let leafWalkSound;
 
@@ -43,6 +46,7 @@ function preload() {
   moonImage = loadImage(moonImPath);
 
   leafWalkSound = loadSound(leafWalkSoundPath);
+  backgroundMusic = loadSound(backgroundMusicPath);
 }
 
 function setup() {
@@ -51,6 +55,9 @@ function setup() {
   imageMode(CENTER);
   textFont(font8Bit);
   userStartAudio();
+
+  backgroundMusic.loop();
+  backgroundMusic.setVolume(0.05);
 
   jumper = new Jumper({
     p: createVector(width / 2, height - jumper_width),
