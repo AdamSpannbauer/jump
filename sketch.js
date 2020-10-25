@@ -2,6 +2,7 @@
 // TODO: clean up this file while doing above TODO
 
 import Jumper from './jump/jumper.js';
+import Tree from './jump/tree.js';
 
 const canvasW = 512;
 const canvasH = 512;
@@ -68,7 +69,10 @@ function setup() {
 
   let tree;
   for (let i = 0; i < 30; i++) {
-    tree = new Tree(random(0, width * 5));
+    tree = new Tree({
+      x: random(0, width * 5),
+      img: random([tree1Image, tree1Image, tree2Image]),
+    });
     trees.push(tree);
   }
 }
@@ -113,33 +117,3 @@ function draw() {
 window.preload = preload;
 window.setup = setup;
 window.draw = draw;
-
-class Tree {
-  constructor(x) {
-    this.x = x;
-    this.y = height - 5;
-    this.dir = random([-1, 1]);
-
-    this.img = random([tree1Image, tree1Image, tree2Image]);
-
-    this.h = random(200, 300);
-    this.w = this.img.width * (this.h / this.img.height);
-  }
-
-  draw({ relX = 0, relY = 0 }) {
-    // Assuming relative_pos will be in middle of canvas
-    let drawX = width / 2 + (this.x - relX);
-
-    // Assuming relative_pos will be bottom of canvas
-    let drawY = height - (relY - this.y);
-
-    drawX -= this.w / 2;
-    drawY -= this.h / 2;
-
-    push();
-    translate(drawX, drawY);
-    scale(this.dir, 1);
-    image(this.img, 0, 0, this.w, this.h);
-    pop();
-  }
-}

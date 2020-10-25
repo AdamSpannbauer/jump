@@ -90,7 +90,7 @@ class Jumper {
     translate(0, this.pos.y);
 
     // Change dir based on x vel
-    scale(-1 * this.v.x / abs(this.v.x), 1.0);
+    scale(this.v.x / abs(this.v.x), 1.0);
 
     if (this.upKeyIsHeld) {
       const h_adj = this.h * 0.88;
@@ -130,24 +130,7 @@ class Jumper {
     }
   }
 
-  userInput() {
-    // up or w
-    const upPressed = keyIsDown(UP_ARROW) || keyIsDown(87);
-    const hasRemainingJumps = this.jumpCount < this.doubleJumpLimit + 1;
-
-    if (upPressed && !this.upKeyIsHeld && hasRemainingJumps) {
-      if (this.jumpCount === 0) {
-        this.f.add(this.jumpForce);
-      } else {
-        this.f.add(this.doubleJumpForce);
-      }
-
-      this.upKeyIsHeld = true;
-      this.jumpCount += 1;
-    } else if (!upPressed) {
-      this.upKeyIsHeld = false;
-    }
-
+  move() {
     // left or a
     const leftPressed = keyIsDown(LEFT_ARROW) || keyIsDown(65);
     if (leftPressed) {
@@ -167,6 +150,34 @@ class Jumper {
         this.f.add(this.airMoveForce);
       }
     }
+  }
+
+  jump() {
+    // up or w
+    const upPressed = keyIsDown(UP_ARROW) || keyIsDown(87);
+    const hasRemainingJumps = this.jumpCount < this.doubleJumpLimit + 1;
+
+    if (upPressed && !this.upKeyIsHeld && hasRemainingJumps) {
+      if (this.jumpCount === 0) {
+        this.f.add(this.jumpForce);
+      } else {
+        this.f.add(this.doubleJumpForce);
+      }
+
+      this.upKeyIsHeld = true;
+      this.jumpCount += 1;
+    } else if (!upPressed) {
+      this.upKeyIsHeld = false;
+    }
+  }
+
+  userInput() {
+    // it's dumb, but... this.move has to be done before this.jump
+    // this.isGrounded resets the jump counter when true
+    // this.move checks if grounded and if run after this.jump
+    // then the player gets an extra jump while moving horizontally
+    this.move();
+    this.jump();
   }
 }
 
