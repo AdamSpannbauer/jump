@@ -90,7 +90,7 @@ class Jumper {
     translate(0, this.pos.y);
 
     // Change dir based on x vel
-    scale(-1 * this.v.x / abs(this.v.x), 1.0);
+    scale(this.v.x / abs(this.v.x), 1.0);
 
     if (this.upKeyIsHeld) {
       const h_adj = this.h * 0.88;
